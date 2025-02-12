@@ -2,76 +2,114 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-mp_hands = mp.solutions.hands
-mp_pose = mp.solutions.pose
-mp_drawing = mp.solutions.drawing_utils
-mp_selfie_segmentation = mp.solutions.selfie_segmentation
 
-hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
-pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
-segmentation = mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
+class HandGestureDetector:
+    def __init__(self, min_detection_conf=0.5, min_tracking_conf=0.5):
+        self.mp_hands = mp.solutions.hands
+        self.hands = self.mp_hands.Hands(min_detection_confidence=min_detection_conf,
+                                         min_tracking_confidence=min_tracking_conf)
+        self.mp_drawing = mp.solutions.drawing_utils
 
-background = cv2.imread("pictures/background.jpg")
+    def detect_hands(self, frame_rgb):
+        return self.hands.process(frame_rgb)
 
-person_width = 320
-person_height = 240
+    def draw_hands(self, frame, landmarks):
+        if landmarks:
+            for hand_landmarks in landmarks:
+                self.mp_drawing.draw_landmarks(frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
 
-cap = cv2.VideoCapture(0)
+    def detect_gesture(self, hand_landmarks):
+        if not hand_landmarks:
+            return "none"
 
-normal_distance = 0.1
-threshold_close = 0.07
-threshold_far = 0.3
+        for hand in hand_landmarks:
+            landmarks = hand.landmark
 
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    h, w, c = frame.shape
-
-    background = cv2.resize(background, (w, h))
-
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    result_seg = segmentation.process(frame_rgb)
-    mask = result_seg.segmentation_mask
-
-    mask = mask[:, :, np.newaxis]
-    frame_segmented = (frame * mask + background * (1 - mask)).astype(np.uint8)
-
-    result_hands = hands.process(frame_rgb)
-
-    result_pose = pose.process(frame_rgb)
-
-    if result_hands.multi_hand_landmarks:
-        for hand_landmarks in result_hands.multi_hand_landmarks:
-            mp_drawing.draw_landmarks(frame_segmented, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-
-            thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP]
-            index_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
-            middle_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
-            ring_tip = hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP]
-            pinky_tip = hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP]
+            thumb_tip = landmarks[self.mp_hands.HandLandmark.THUMB_TIP]
+            index_tip = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
+            middle_tip = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
+            ring_tip = landmarks[self.mp_hands.HandLandmark.RING_FINGER_TIP]
+            pinky_tip = landmarks[self.mp_hands.HandLandmark.PINKY_TIP]
 
             thumb_index_distance = np.sqrt((thumb_tip.x - index_tip.x) ** 2 + (thumb_tip.y - index_tip.y) ** 2)
             thumb_pinky_distance = np.sqrt((thumb_tip.x - pinky_tip.x) ** 2 + (thumb_tip.y - pinky_tip.y) ** 2)
 
-            if thumb_index_distance < threshold_close or thumb_pinky_distance < threshold_close:
-                gesture = "-"
-            elif thumb_index_distance > threshold_far or thumb_pinky_distance > threshold_far:
-                gesture = "+"
-            else:
-                gesture = "normal"
+            if thumb_index_distance < 0.07 or thumb_pinky_distance < 0.07:
+                return "-"
+
+            if thumb_index_distance > 0.3 or thumb_pinky_distance > 0.3:
+                return "+"
+
+        return "normal"
+
+
+class PoseDetector:
+    def __init__(self, min_detection_conf=0.5, min_tracking_conf=0.5):
+        self.mp_pose = mp.solutions.pose
+        self.pose = self.mp_pose.Pose(min_detection_confidence=min_detection_conf,
+                                      min_tracking_confidence=min_tracking_conf)
+        self.mp_drawing = mp.solutions.drawing_utils
+
+    def detect_pose(self, frame_rgb):
+        return self.pose.process(frame_rgb)
+
+    def draw_pose(self, frame, landmarks):
+        if landmarks:
+            self.mp_drawing.draw_landmarks(frame, landmarks, self.mp_pose.POSE_CONNECTIONS)
+
+
+class BackgroundSegmenter:
+    def __init__(self, background_image_path):
+        self.mp_selfie_segmentation = mp.solutions.selfie_segmentation
+        self.segmentation = self.mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
+        self.background = cv2.imread(background_image_path)
+
+    def segment_background(self, frame):
+        h, w, _ = frame.shape
+        self.background = cv2.resize(self.background, (w, h))
+
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        result_seg = self.segmentation.process(frame_rgb)
+        mask = result_seg.segmentation_mask[:, :, np.newaxis]
+
+        return (frame * mask + self.background * (1 - mask)).astype(np.uint8)
+
+
+class EdgeAiVision:
+    def __init__(self):
+        self.hand_detector = HandGestureDetector()
+        self.pose_detector = PoseDetector()
+        self.bg_segmenter = BackgroundSegmenter("pictures/background.jpg")
+        self.cap = cv2.VideoCapture(0)
+
+    def run(self):
+        while self.cap.isOpened():
+            ret, frame = self.cap.read()
+            if not ret:
+                break
+
+            frame_segmented = self.bg_segmenter.segment_background(frame)
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            hand_results = self.hand_detector.detect_hands(frame_rgb)
+            pose_results = self.pose_detector.detect_pose(frame_rgb)
+
+            self.hand_detector.draw_hands(frame_segmented, hand_results.multi_hand_landmarks)
+            self.pose_detector.draw_pose(frame_segmented, pose_results.pose_landmarks)
+
+            gesture = self.hand_detector.detect_gesture(hand_results.multi_hand_landmarks)
 
             cv2.putText(frame_segmented, f'gesture: {gesture}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
-    if result_pose.pose_landmarks:
-        mp_drawing.draw_landmarks(frame_segmented, result_pose.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+            cv2.imshow('gesture detection', frame_segmented)
 
-    cv2.imshow('gesture detection', frame_segmented)
+            if cv2.waitKey(1) & 0xFF == 27:
+                break
 
-    if cv2.waitKey(1) & 0xFF == 27:
-        break
+        self.cap.release()
+        cv2.destroyAllWindows()
 
-cap.release()
-cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    app = EdgeAiVision()
+    app.run()
