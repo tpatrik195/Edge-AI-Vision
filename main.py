@@ -88,6 +88,8 @@ class EdgeAiVision:
             if not ret:
                 break
 
+            frame = cv2.flip(frame, 1)
+
             frame_segmented = self.bg_segmenter.segment_background(frame)
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
