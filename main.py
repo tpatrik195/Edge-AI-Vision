@@ -13,10 +13,24 @@ class HandGestureDetector:
     def detect_hands(self, frame_rgb):
         return self.hands.process(frame_rgb)
 
-    def draw_hands(self, frame, landmarks):
+    def draw_hands(self, frame, landmarks, handedness_list):
         if landmarks:
-            for hand_landmarks in landmarks:
+            for hand_landmarks, handedness in zip(landmarks, handedness_list):
                 self.mp_drawing.draw_landmarks(frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
+
+                hand_label = handedness.classification[0].label
+
+                x_min = min([lm.x for lm in hand_landmarks.landmark])
+                y_min = min([lm.y for lm in hand_landmarks.landmark])
+                x_max = max([lm.x for lm in hand_landmarks.landmark])
+                y_max = max([lm.y for lm in hand_landmarks.landmark])
+
+                h, w, _ = frame.shape
+                x_min, y_min, x_max, y_max = int(x_min * w), int(y_min * h), int(x_max * w), int(y_max * h)
+
+                cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 0, 255), 2)
+
+                cv2.putText(frame, hand_label, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
     def detect_gesture(self, hand_landmarks, handedness_list):
         if not hand_landmarks or not handedness_list:
@@ -54,9 +68,6 @@ class HandGestureDetector:
                     return "+"
                 else:
                     return "normal"
-                
-            if hand_label == "Left":
-                return "Left hand"
             
         return "none"
 
@@ -117,7 +128,7 @@ class EdgeAiVision:
 
             handedness_list = hand_results.multi_handedness if hand_results.multi_handedness else []
 
-            self.hand_detector.draw_hands(frame_segmented, hand_results.multi_hand_landmarks)
+            self.hand_detector.draw_hands(frame_segmented, hand_results.multi_hand_landmarks, handedness_list)
             self.pose_detector.draw_pose(frame_segmented, pose_results.pose_landmarks)
 
             gesture = self.hand_detector.detect_gesture(hand_results.multi_hand_landmarks, handedness_list)
