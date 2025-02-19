@@ -44,31 +44,54 @@ class HandGestureDetector:
             wrist = landmarks[self.mp_hands.HandLandmark.WRIST]
             thumb_tip = landmarks[self.mp_hands.HandLandmark.THUMB_TIP]
             index_tip = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
+            index_mcp = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_MCP]
             middle_tip = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
+            middle_mcp = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_MCP]
             ring_tip = landmarks[self.mp_hands.HandLandmark.RING_FINGER_TIP]
+            ring_mcp = landmarks[self.mp_hands.HandLandmark.RING_FINGER_MCP]
             pinky_tip = landmarks[self.mp_hands.HandLandmark.PINKY_TIP]
+            pinky_mcp = landmarks[self.mp_hands.HandLandmark.PINKY_MCP]
 
-            ref_distance = np.sqrt((wrist.x - middle_tip.x) ** 2 + (wrist.y - middle_tip.y) ** 2)
+            def calculate_angle(p1, p2, point):
+                vector_1 = np.array([p1.x - point.x, p1.y - point.y])
+                vector_2 = np.array([p2.x - point.x, p2.y - point.y])
 
-            thumb_index_distance = np.sqrt((thumb_tip.x - index_tip.x) ** 2 + (thumb_tip.y - index_tip.y) ** 2)
-            index_middle_distance = np.sqrt((index_tip.x - middle_tip.x) ** 2 + (index_tip.y - middle_tip.y) ** 2)
-            middle_ring_distance = np.sqrt((middle_tip.x - ring_tip.x) ** 2 + (middle_tip.y - ring_tip.y) ** 2)
-            ring_pinky_distance = np.sqrt((ring_tip.x - pinky_tip.x) ** 2 + (ring_tip.y - pinky_tip.y) ** 2)
+                dot_product = np.dot(vector_1, vector_2)
+                magnitude_1 = np.linalg.norm(vector_1)
+                magnitude_2 = np.linalg.norm(vector_2)
 
-            norm_thumb_index = thumb_index_distance / ref_distance
-            norm_index_middle = index_middle_distance / ref_distance
-            norm_middle_ring = middle_ring_distance / ref_distance
-            norm_ring_pinky = ring_pinky_distance / ref_distance
+                if magnitude_1 == 0 or magnitude_2 == 0:
+                    return 0
+
+                cos_theta = dot_product / (magnitude_1 * magnitude_2)
+                angle_rad = np.arccos(np.clip(cos_theta, -1.0, 1.0))
+                return np.degrees(angle_rad)
+
+            thumb_index_angle = calculate_angle(thumb_tip, index_tip, wrist)
+            index_middle_angle = calculate_angle(index_tip, middle_tip, wrist)
+            middle_ring_angle = calculate_angle(middle_tip, ring_tip, wrist)
+            ring_pinky_angle = calculate_angle(ring_tip, pinky_tip, wrist)
+
+            wrist_index_angle = calculate_angle(wrist, index_tip, index_mcp)
+            wrist_middle_angle = calculate_angle(wrist, middle_tip, middle_mcp)
+            wrist_ring_angle = calculate_angle(wrist, ring_tip, ring_mcp)
+            wrist_pinky_angle = calculate_angle(wrist, pinky_tip, pinky_mcp)
+
+            # print(f"thumb - index angle: {thumb_index_angle}\nindex - middle angle: {index_middle_angle}\nmiddle - ring angle: {middle_ring_angle}\nring - pinky angle: {ring_pinky_angle}\n")
+            # print(f"wrist - index angle: {wrist_index_angle}\nwrist - middle angle: {wrist_middle_angle}\nwrist - ring angle: {wrist_ring_angle}\nwrist - pinky angle: {wrist_pinky_angle}\n")
 
             if hand_label == "Right":
-                if norm_thumb_index < 0.15 and norm_index_middle < 0.2 and norm_middle_ring < 0.1 and norm_ring_pinky < 0.2:
+                if thumb_index_angle < 2 and index_middle_angle < 4 and middle_ring_angle < 5 and ring_pinky_angle < 2:
                     return "-"
 
-                elif norm_thumb_index > 0.5 and norm_index_middle > 0.2 and norm_middle_ring > 0.1 and norm_ring_pinky > 0.3:
+                elif thumb_index_angle > 30 and index_middle_angle > 5 and middle_ring_angle > 5 and ring_pinky_angle > 10:
                     return "+"
-                else:
-                    return "normal"
-            
+
+                elif wrist_index_angle > 160 and wrist_middle_angle < 25 and wrist_ring_angle < 20 and wrist_pinky_angle < 20:
+                    return "pointing"
+
+            return "normal"
+
         return "none"
 
 
@@ -107,7 +130,7 @@ class BackgroundSegmenter:
 class EdgeAiVision:
     def __init__(self):
         self.hand_detector = HandGestureDetector()
-        self.pose_detector = PoseDetector()
+        # self.pose_detector = PoseDetector()
         # self.bg_segmenter = BackgroundSegmenter("pictures/background.jpg")
         self.cap = cv2.VideoCapture(0)
 
@@ -124,12 +147,12 @@ class EdgeAiVision:
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             hand_results = self.hand_detector.detect_hands(frame_rgb)
-            pose_results = self.pose_detector.detect_pose(frame_rgb)
+            # pose_results = self.pose_detector.detect_pose(frame_rgb)
 
             handedness_list = hand_results.multi_handedness if hand_results.multi_handedness else []
 
             self.hand_detector.draw_hands(frame_segmented, hand_results.multi_hand_landmarks, handedness_list)
-            self.pose_detector.draw_pose(frame_segmented, pose_results.pose_landmarks)
+            # self.pose_detector.draw_pose(frame_segmented, pose_results.pose_landmarks)
 
             gesture = self.hand_detector.detect_gesture(hand_results.multi_hand_landmarks, handedness_list)
 
