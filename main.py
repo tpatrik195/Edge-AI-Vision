@@ -18,29 +18,47 @@ class HandGestureDetector:
             for hand_landmarks in landmarks:
                 self.mp_drawing.draw_landmarks(frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
 
-    def detect_gesture(self, hand_landmarks):
-        if not hand_landmarks:
+    def detect_gesture(self, hand_landmarks, handedness_list):
+        if not hand_landmarks or not handedness_list:
             return "none"
 
-        for hand in hand_landmarks:
+        for hand, handedness in zip(hand_landmarks, handedness_list):
+            hand_label = handedness.classification[0].label
+
             landmarks = hand.landmark
 
+            wrist = landmarks[self.mp_hands.HandLandmark.WRIST]
             thumb_tip = landmarks[self.mp_hands.HandLandmark.THUMB_TIP]
             index_tip = landmarks[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
             middle_tip = landmarks[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
             ring_tip = landmarks[self.mp_hands.HandLandmark.RING_FINGER_TIP]
             pinky_tip = landmarks[self.mp_hands.HandLandmark.PINKY_TIP]
 
+            ref_distance = np.sqrt((wrist.x - middle_tip.x) ** 2 + (wrist.y - middle_tip.y) ** 2)
+
             thumb_index_distance = np.sqrt((thumb_tip.x - index_tip.x) ** 2 + (thumb_tip.y - index_tip.y) ** 2)
-            thumb_pinky_distance = np.sqrt((thumb_tip.x - pinky_tip.x) ** 2 + (thumb_tip.y - pinky_tip.y) ** 2)
+            index_middle_distance = np.sqrt((index_tip.x - middle_tip.x) ** 2 + (index_tip.y - middle_tip.y) ** 2)
+            middle_ring_distance = np.sqrt((middle_tip.x - ring_tip.x) ** 2 + (middle_tip.y - ring_tip.y) ** 2)
+            ring_pinky_distance = np.sqrt((ring_tip.x - pinky_tip.x) ** 2 + (ring_tip.y - pinky_tip.y) ** 2)
 
-            if thumb_index_distance < 0.07 or thumb_pinky_distance < 0.07:
-                return "-"
+            norm_thumb_index = thumb_index_distance / ref_distance
+            norm_index_middle = index_middle_distance / ref_distance
+            norm_middle_ring = middle_ring_distance / ref_distance
+            norm_ring_pinky = ring_pinky_distance / ref_distance
 
-            if thumb_index_distance > 0.3 or thumb_pinky_distance > 0.3:
-                return "+"
+            if hand_label == "Right":
+                if norm_thumb_index < 0.15 and norm_index_middle < 0.2 and norm_middle_ring < 0.1 and norm_ring_pinky < 0.2:
+                    return "-"
 
-        return "normal"
+                elif norm_thumb_index > 0.5 and norm_index_middle > 0.2 and norm_middle_ring > 0.1 and norm_ring_pinky > 0.3:
+                    return "+"
+                else:
+                    return "normal"
+                
+            if hand_label == "Left":
+                return "Left hand"
+            
+        return "none"
 
 
 class PoseDetector:
@@ -79,7 +97,7 @@ class EdgeAiVision:
     def __init__(self):
         self.hand_detector = HandGestureDetector()
         self.pose_detector = PoseDetector()
-        self.bg_segmenter = BackgroundSegmenter("pictures/background.jpg")
+        # self.bg_segmenter = BackgroundSegmenter("pictures/background.jpg")
         self.cap = cv2.VideoCapture(0)
 
     def run(self):
@@ -90,16 +108,19 @@ class EdgeAiVision:
 
             frame = cv2.flip(frame, 1)
 
-            frame_segmented = self.bg_segmenter.segment_background(frame)
+            # frame_segmented = self.bg_segmenter.segment_background(frame)
+            frame_segmented = frame
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             hand_results = self.hand_detector.detect_hands(frame_rgb)
             pose_results = self.pose_detector.detect_pose(frame_rgb)
 
+            handedness_list = hand_results.multi_handedness if hand_results.multi_handedness else []
+
             self.hand_detector.draw_hands(frame_segmented, hand_results.multi_hand_landmarks)
             self.pose_detector.draw_pose(frame_segmented, pose_results.pose_landmarks)
 
-            gesture = self.hand_detector.detect_gesture(hand_results.multi_hand_landmarks)
+            gesture = self.hand_detector.detect_gesture(hand_results.multi_hand_landmarks, handedness_list)
 
             cv2.putText(frame_segmented, f'gesture: {gesture}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
