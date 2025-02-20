@@ -9,6 +9,8 @@ class HandGestureDetector:
         self.hands = self.mp_hands.Hands(min_detection_confidence=min_detection_conf,
                                          min_tracking_confidence=min_tracking_conf)
         self.mp_drawing = mp.solutions.drawing_utils
+        self.gesture_history = []
+        self.last_position = None
 
     def detect_hands(self, frame_rgb):
         return self.hands.process(frame_rgb)
@@ -32,13 +34,33 @@ class HandGestureDetector:
 
                 cv2.putText(frame, hand_label, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
+    def detect_movement(self, hand_landmarks):
+        if not hand_landmarks:
+            return "none"
+
+        media_x = round(sum([lm.x for lm in hand_landmarks[0].landmark]) / len(hand_landmarks[0].landmark), 2)
+
+        if self.last_position is not None:
+            if media_x < self.last_position - 0.05:
+                movement = "swipe left"
+            elif media_x > self.last_position + 0.05:
+                movement = "swipe right"
+            else:
+                movement = "none"
+        else:
+            movement = "none"
+
+        self.last_position = media_x
+        return movement
+    
     def detect_gesture(self, hand_landmarks, handedness_list):
         if not hand_landmarks or not handedness_list:
             return "none"
+        
+        movement = self.detect_movement(hand_landmarks)
 
         for hand, handedness in zip(hand_landmarks, handedness_list):
             hand_label = handedness.classification[0].label
-
             landmarks = hand.landmark
 
             wrist = landmarks[self.mp_hands.HandLandmark.WRIST]
@@ -77,20 +99,31 @@ class HandGestureDetector:
             wrist_ring_angle = calculate_angle(wrist, ring_tip, ring_mcp)
             wrist_pinky_angle = calculate_angle(wrist, pinky_tip, pinky_mcp)
 
-            # print(f"thumb - index angle: {thumb_index_angle}\nindex - middle angle: {index_middle_angle}\nmiddle - ring angle: {middle_ring_angle}\nring - pinky angle: {ring_pinky_angle}\n")
-            # print(f"wrist - index angle: {wrist_index_angle}\nwrist - middle angle: {wrist_middle_angle}\nwrist - ring angle: {wrist_ring_angle}\nwrist - pinky angle: {wrist_pinky_angle}\n")
+            print(f"thumb - index angle: {thumb_index_angle}\nindex - middle angle: {index_middle_angle}\nmiddle - ring angle: {middle_ring_angle}\nring - pinky angle: {ring_pinky_angle}\n")
+            print(f"wrist - index angle: {wrist_index_angle}\nwrist - middle angle: {wrist_middle_angle}\nwrist - ring angle: {wrist_ring_angle}\nwrist - pinky angle: {wrist_pinky_angle}\n")
 
             if hand_label == "Right":
-                if thumb_index_angle < 2 and index_middle_angle < 4 and middle_ring_angle < 5 and ring_pinky_angle < 2:
-                    return "-"
-
+                if thumb_index_angle < 4 and index_middle_angle < 4 and middle_ring_angle < 5 and ring_pinky_angle < 4:
+                    gesture = "-"
                 elif thumb_index_angle > 30 and index_middle_angle > 5 and middle_ring_angle > 5 and ring_pinky_angle > 10:
-                    return "+"
-
+                    gesture = "+"
                 elif wrist_index_angle > 160 and wrist_middle_angle < 25 and wrist_ring_angle < 20 and wrist_pinky_angle < 20:
-                    return "pointing"
+                    gesture = "pointing"
+                else:
+                    gesture = "normal"
 
-            return "normal"
+            elif hand_label == "Left":
+                if movement != "none":
+                    return movement
+
+                gesture = "normal"
+
+            self.gesture_history.append(gesture)
+            if len(self.gesture_history) > 10:
+                self.gesture_history.pop(0)
+
+            if self.gesture_history.count(gesture) >= 3:
+                return gesture
 
         return "none"
 
