@@ -2,7 +2,6 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-
 class HandGestureDetector:
     def __init__(self, min_detection_conf=0.5, min_tracking_conf=0.5):
         self.mp_hands = mp.solutions.hands
@@ -126,80 +125,3 @@ class HandGestureDetector:
                 return gesture
 
         return "none"
-
-
-class PoseDetector:
-    def __init__(self, min_detection_conf=0.5, min_tracking_conf=0.5):
-        self.mp_pose = mp.solutions.pose
-        self.pose = self.mp_pose.Pose(min_detection_confidence=min_detection_conf,
-                                      min_tracking_confidence=min_tracking_conf)
-        self.mp_drawing = mp.solutions.drawing_utils
-
-    def detect_pose(self, frame_rgb):
-        return self.pose.process(frame_rgb)
-
-    def draw_pose(self, frame, landmarks):
-        if landmarks:
-            self.mp_drawing.draw_landmarks(frame, landmarks, self.mp_pose.POSE_CONNECTIONS)
-
-
-class BackgroundSegmenter:
-    def __init__(self, background_image_path):
-        self.mp_selfie_segmentation = mp.solutions.selfie_segmentation
-        self.segmentation = self.mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
-        self.background = cv2.imread(background_image_path)
-
-    def segment_background(self, frame):
-        h, w, _ = frame.shape
-        self.background = cv2.resize(self.background, (w, h))
-
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        result_seg = self.segmentation.process(frame_rgb)
-        mask = result_seg.segmentation_mask[:, :, np.newaxis]
-
-        return (frame * mask + self.background * (1 - mask)).astype(np.uint8)
-
-
-class EdgeAiVision:
-    def __init__(self):
-        self.hand_detector = HandGestureDetector()
-        # self.pose_detector = PoseDetector()
-        # self.bg_segmenter = BackgroundSegmenter("pictures/background.jpg")
-        self.cap = cv2.VideoCapture(0)
-
-    def run(self):
-        while self.cap.isOpened():
-            ret, frame = self.cap.read()
-            if not ret:
-                break
-
-            frame = cv2.flip(frame, 1)
-
-            # frame_segmented = self.bg_segmenter.segment_background(frame)
-            frame_segmented = frame
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-            hand_results = self.hand_detector.detect_hands(frame_rgb)
-            # pose_results = self.pose_detector.detect_pose(frame_rgb)
-
-            handedness_list = hand_results.multi_handedness if hand_results.multi_handedness else []
-
-            self.hand_detector.draw_hands(frame_segmented, hand_results.multi_hand_landmarks, handedness_list)
-            # self.pose_detector.draw_pose(frame_segmented, pose_results.pose_landmarks)
-
-            gesture = self.hand_detector.detect_gesture(hand_results.multi_hand_landmarks, handedness_list)
-
-            cv2.putText(frame_segmented, f'gesture: {gesture}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-
-            cv2.imshow('gesture detection', frame_segmented)
-
-            if cv2.waitKey(1) & 0xFF == 27:
-                break
-
-        self.cap.release()
-        cv2.destroyAllWindows()
-
-
-if __name__ == "__main__":
-    app = EdgeAiVision()
-    app.run()
