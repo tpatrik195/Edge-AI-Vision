@@ -8,7 +8,7 @@ class RTSPMediaFactory(GstRtspServer.RTSPMediaFactory):
         super(RTSPMediaFactory, self).__init__()
         self.set_launch(
             "udpsrc port=5000 caps=\"application/x-rtp,media=video,clock-rate=90000,encoding-name=H264\" ! "
-            "rtph264depay ! decodebin ! videoconvert ! x264enc tune=zerolatency ! "
+            "rtph264depay ! decodebin ! videoconvert ! videoflip method=horizontal-flip ! x264enc tune=zerolatency ! "
             "rtph264pay config-interval=1 pt=96 name=pay0"
         )
         self.set_shared(True)
