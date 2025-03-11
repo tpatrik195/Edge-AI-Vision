@@ -98,8 +98,8 @@ class HandGestureDetector:
             wrist_ring_angle = calculate_angle(wrist, ring_tip, ring_mcp)
             wrist_pinky_angle = calculate_angle(wrist, pinky_tip, pinky_mcp)
 
-            print(f"thumb - index angle: {thumb_index_angle}\nindex - middle angle: {index_middle_angle}\nmiddle - ring angle: {middle_ring_angle}\nring - pinky angle: {ring_pinky_angle}\n")
-            print(f"wrist - index angle: {wrist_index_angle}\nwrist - middle angle: {wrist_middle_angle}\nwrist - ring angle: {wrist_ring_angle}\nwrist - pinky angle: {wrist_pinky_angle}\n")
+            # print(f"thumb - index angle: {thumb_index_angle}\nindex - middle angle: {index_middle_angle}\nmiddle - ring angle: {middle_ring_angle}\nring - pinky angle: {ring_pinky_angle}\n")
+            # print(f"wrist - index angle: {wrist_index_angle}\nwrist - middle angle: {wrist_middle_angle}\nwrist - ring angle: {wrist_ring_angle}\nwrist - pinky angle: {wrist_pinky_angle}\n")
 
             if hand_label == "Right":
                 if thumb_index_angle < 4 and index_middle_angle < 4 and middle_ring_angle < 5 and ring_pinky_angle < 4:
