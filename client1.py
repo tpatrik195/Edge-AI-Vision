@@ -34,8 +34,7 @@ def send_frames():
             break
 
         _, img_encoded = cv2.imencode('.jpg', frame)
-        response = requests.post(f"{SERVER_URL}/process_frame", files={"frame": img_encoded.tobytes()})
-        print(f"Server Response: {response.text}")
+        requests.post(f"{SERVER_URL}/process_frame", files={"frame": img_encoded.tobytes()})
 
         time.sleep(0.1)
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 import cv2
 import numpy as np
 import requests
-from app.api.process import process_hand_gesture
+from app.api.process import process_hand_gesture, process_segmentation, process_pose
 
 router = APIRouter()
 
@@ -43,7 +43,7 @@ async def process_frame(frame: UploadFile = File(...)):
         # cv2.imshow("processed frame", img)
         # cv2.waitKey(1)
 
-        return {"message": "frame processed", "gesture": gesture}
+        return {"message": "frame processed"}
 
     except Exception as e:
         return {"error": str(e)}
