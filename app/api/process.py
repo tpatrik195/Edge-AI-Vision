@@ -4,7 +4,7 @@ from app.models.hand_detectation import HandGestureDetector
 from app.models.segmentation import BackgroundSegmenter
 
 hand_gesture_detector = HandGestureDetector(min_detection_conf=0.5, min_tracking_conf=0.5)
-background_segmenter = BackgroundSegmenter(background_image_path="pictures/background.jpg")
+background_segmenter = BackgroundSegmenter()
 
 def process_hand_gesture(frame):
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

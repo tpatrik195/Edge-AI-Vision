@@ -6,7 +6,7 @@ import uvicorn
 import threading
 
 SERVER_URL = "http://127.0.0.1:8000"
-WEBHOOK_URL = "http://127.0.0.1:9000/webhook"
+WEBHOOK_URL = "http://127.0.0.1:9002/webhook"
 
 app = FastAPI()
 
@@ -19,6 +19,10 @@ async def webhook(request: Request):
 def subscribe_webhook():
     response = requests.post(f"{SERVER_URL}/subscribe_webhook", params={"url": WEBHOOK_URL})
     print(f"Subscription Response: {response.text}")
+
+def unsubscribe_webhook():
+    response = requests.post(f"{SERVER_URL}/unsubscribe_webhook", params={"url": WEBHOOK_URL})
+    print(f"Unsubscription Response: {response.text}")
 
 def send_frames():
     cap = cv2.VideoCapture(0)
@@ -36,12 +40,17 @@ def send_frames():
         _, img_encoded = cv2.imencode('.jpg', frame)
         requests.post(f"{SERVER_URL}/process_frame", files={"frame": img_encoded.tobytes()})
 
+        if cv2.waitKey(1) == 27:
+            print("ESC pressed, unsubscribing...")
+            unsubscribe_webhook()
+            break
+
         time.sleep(0.1)
 
     cap.release()
 
 def run_client():
-    threading.Thread(target=lambda: uvicorn.run(app, host="127.0.0.1", port=9000), daemon=True).start()
+    threading.Thread(target=lambda: uvicorn.run(app, host="127.0.0.1", port=9002), daemon=True).start()
     time.sleep(2)
     subscribe_webhook()
     send_frames()
