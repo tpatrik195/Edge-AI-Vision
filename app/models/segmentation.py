@@ -46,6 +46,8 @@ class BackgroundSegmenter:
         :return: A szegmentált kép.
         """
         h, w, _ = frame.shape
+
+        frame = cv2.flip(frame, 1)
         
         # Ha a háttérkép nem megfelelő méretű, átméretezzük a képkocka méretéhez
         self.background = cv2.resize(self.background, (w, h))  # Módosított háttér mérete
