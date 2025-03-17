@@ -8,6 +8,8 @@ from app.api.process import process_hand_gesture
 router = APIRouter()
 
 subscribers = set()
+gesture_buffer = []
+GESTURE_THRESHOLD = 3
 
 # latest_segmented_frame = None
 
@@ -42,10 +44,24 @@ async def process_frame(frame: UploadFile = File(...)):
 
         gesture, img = process_hand_gesture(img)
 
+        # nem statikus gesztust egybol kuldje el
+        if gesture == "swipe right" or gesture == "swipe left":
+            await notify_subscribers(gesture)
+        
+        else:
+            if len(gesture_buffer) >= GESTURE_THRESHOLD:
+                gesture_buffer.pop(0)
+
+            gesture_buffer.append(gesture)
+
+            if len(gesture_buffer) == GESTURE_THRESHOLD and all(g == gesture for g in gesture_buffer):
+                await notify_subscribers(gesture)
+                gesture_buffer.clear()
+
         # segmented_img = process_segmentation(img)
         # latest_segmented_frame = segmented_img
 
-        await notify_subscribers(gesture)
+        # await notify_subscribers(gesture)
 
         # cv2.imshow("processed frame", img)
         # cv2.waitKey(1)

@@ -16,6 +16,7 @@ SERVER_URL = "http://127.0.0.1:8000"
 WEBHOOK_URL = "http://127.0.0.1:9001/webhook"
 
 background_segmenter = None
+scaling_factor = 1.0
 
 root = tk.Tk()
 root.title("Edge AI Vision")
@@ -29,8 +30,6 @@ ppt_current_slide = 0
 cap = None
 camera_active = False
 webhook_subscribed = False
-
-received_gesture = None
 
 def display_image(image):
     global current_image
@@ -197,6 +196,7 @@ def send_frames():
         if cv2.waitKey(1) == 27:
             stop_webcam()
             break
+
 app = FastAPI()
 
 @app.post("/webhook")
@@ -205,10 +205,14 @@ async def webhook(request: Request):
     print(f"Gesture Event Received: {data}")
     received_gesture = data.get("gesture", "unknown")
 
-    if received_gesture == "+":
+    if received_gesture == "swipe right":
         root.after(0, next_page)
-    elif received_gesture == "-":
+    elif received_gesture == "swipe left":
         root.after(0, previous_page)
+    # elif received_gesture == "+":
+    #         root.after(0, lambda: resize_segmented_image(1.1))
+    # elif received_gesture == "-":
+    #         root.after(0, lambda: resize_segmented_image(0.9))
 
     return {"status": "received"}
 
