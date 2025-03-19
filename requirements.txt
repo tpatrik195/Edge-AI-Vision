@@ -5,3 +5,14 @@ opencv-python
 numpy
 requests
 mediapipe
+
+# npm install react-webcam @mediapipe/selfie_segmentation @mediapipe/camera_utils
+# npm install --save-dev @types/react-webcam
+# npm install react-lottie
+# npm install pdfjs-dist pptxgenjs html2canvas
+# npm install pdfjs-dist@2.10.377
+# npm install swr
+# npm install axios
+# npm install cors
+# npm install socket.io
+# npm install socket.io-client

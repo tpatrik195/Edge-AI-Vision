@@ -21,3 +21,6 @@ venv/
 .vscode/
 .idea/
 *.iml
+
+# Node.js dependencies
+node_modules/

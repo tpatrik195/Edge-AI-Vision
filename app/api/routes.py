@@ -1,3 +1,4 @@
+# from urllib.request import Request
 from fastapi import APIRouter, UploadFile, File, HTTPException
 # from fastapi.responses import Response
 import cv2
@@ -9,7 +10,7 @@ router = APIRouter()
 
 subscribers = set()
 gesture_buffer = []
-GESTURE_THRESHOLD = 3
+GESTURE_THRESHOLD = 1
 
 # latest_segmented_frame = None
 
@@ -36,13 +37,20 @@ async def notify_subscribers(gesture):
 
 @router.post("/process_frame")
 async def process_frame(frame: UploadFile = File(...)):
-    global latest_segmented_frame
+    # global latest_segmented_frame
     try:
         img_array = np.frombuffer(await frame.read(), np.uint8)
+        # img_bytes = await frame.read()
+        # print(len(img_bytes))  # Megnézheted, hogy hány byte-ot sikerült beolvasni
+        # if len(img_bytes) == 0:
+        #     raise HTTPException(status_code=400, detail="No image data received")
+        # img_array = np.frombuffer(img_bytes, np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
         img = cv2.flip(img, 1)
 
         gesture, img = process_hand_gesture(img)
+
+        print(gesture)
 
         # nem statikus gesztust egybol kuldje el
         if gesture == "swipe right" or gesture == "swipe left":
