@@ -1,0 +1,14 @@
+{
+    "menuBar": {
+        "home": "Home",
+        "presentation": "Presentation",
+        "settings": "Settings"
+    },
+    "presentationPage": {
+        "uploadFile": "Upload file",
+        "gestureDetection": "Gesture detection",
+        "stop": "Stop",
+        "showPerson": "Show person",
+        "hidePerson": "Hide person"
+    }
+}

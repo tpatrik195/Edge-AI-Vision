@@ -1,0 +1,14 @@
+{
+    "menuBar": {
+        "home": "Acasă",
+        "presentation": "Prezentare",
+        "settings": "Setări"
+    },
+    "presentationPage": {
+        "uploadFile": "Încarcă fișier",
+        "gestureDetection": "Detectare gesturi",
+        "stop": "Oprește",
+        "showPerson": "Afișează persoana",
+        "hidePerson": "Ascunde persoana"
+    }
+}

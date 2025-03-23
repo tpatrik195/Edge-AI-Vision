@@ -1,0 +1,14 @@
+{
+    "menuBar": {
+        "home": "Főoldal",
+        "presentation": "Prezentáció",
+        "settings": "Beállítások"
+    },
+    "presentationPage": {
+        "uploadFile": "Fájl feltöltése",
+        "gestureDetection": "Gesztus felismerés",
+        "stop": "Leállítás",
+        "showPerson": "Személy hozzáadása",
+        "hidePerson": "Személy eltüntetése"
+    }
+}
