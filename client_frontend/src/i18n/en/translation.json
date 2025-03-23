@@ -2,6 +2,7 @@
     "menuBar": {
         "home": "Home",
         "presentation": "Presentation",
+        "practice": "Practice",
         "settings": "Settings"
     },
     "presentationPage": {
@@ -9,6 +10,9 @@
         "gestureDetection": "Gesture detection",
         "stop": "Stop",
         "showPerson": "Show person",
-        "hidePerson": "Hide person"
+        "hidePerson": "Hide person",
+        "recognizedGesture": "Recognized gesture: ",
+        "fullScreen": "Full screen",
+        "exitFullScreen": "Exit"
     }
 }

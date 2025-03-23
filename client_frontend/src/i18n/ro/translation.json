@@ -2,6 +2,7 @@
     "menuBar": {
         "home": "Acasă",
         "presentation": "Prezentare",
+        "practice": "Exercițiu",
         "settings": "Setări"
     },
     "presentationPage": {
@@ -9,6 +10,9 @@
         "gestureDetection": "Detectare gesturi",
         "stop": "Oprește",
         "showPerson": "Afișează persoana",
-        "hidePerson": "Ascunde persoana"
+        "hidePerson": "Ascunde persoana",
+        "recognizedGesture": "Gestul recunoscut: ",
+        "fullScreen": "Ecran complet",
+        "exitFullScreen": "Ieșire"
     }
 }

@@ -2,6 +2,7 @@
     "menuBar": {
         "home": "Főoldal",
         "presentation": "Prezentáció",
+        "practice": "Gyakorlás",
         "settings": "Beállítások"
     },
     "presentationPage": {
@@ -9,6 +10,9 @@
         "gestureDetection": "Gesztus felismerés",
         "stop": "Leállítás",
         "showPerson": "Személy hozzáadása",
-        "hidePerson": "Személy eltüntetése"
+        "hidePerson": "Személy eltüntetése",
+        "recognizedGesture": "Felismert gesztus: ",
+        "fullScreen": "Teljes képernyő",
+        "exitFullScreen": "Kilépés"
     }
 }

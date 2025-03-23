@@ -12,7 +12,6 @@ import html2canvas from "html2canvas";
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { io } from "socket.io-client";
 import { useTranslation } from 'react-i18next';
-import { Button } from "@mui/material";
 
 const SERVER_URL = "http://127.0.0.1:8000";
 const WEBHOOK_URL = "http://127.0.0.1:9000/webhook";
@@ -22,6 +21,7 @@ const socket = io("http://localhost:9000");
 const PresentationPage = () => {
     const webcamRef = useRef(null);
     const canvasRef = useRef(null);
+    const containerRef = useRef(null);
     const [imageURL, setimageURL] = useState(defaultImg);
     const [load, setLoad] = useState(false);
     const [pdfPageNum, setPdfPageNum] = useState(1);
@@ -34,6 +34,7 @@ const PresentationPage = () => {
     const [error, setError] = useState("");
     const [showPerson, setShowPerson] = useState(true);
     const [subscribed, setSubscribed] = useState(false);
+    const [fullScreenMode, setFullScreenMode] = useState(false);
     let frameInterval = useRef(null);
 
     const { t } = useTranslation();
@@ -92,6 +93,7 @@ const PresentationPage = () => {
             camera.start();
         }
     }, []);
+    // }, [showPerson]);  
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -154,7 +156,6 @@ const PresentationPage = () => {
     }, [pdfPageNum, pptSlideNum, fileType]);
 
     const imageHandler = async (e) => {
-        // GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
         GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;
 
         const file = e.target.files[0];
@@ -314,63 +315,85 @@ const PresentationPage = () => {
         }
     }, [gesture]);
 
+    const toggleFullScreen = () => {
+        if (!document.fullscreenElement) {
+            if (containerRef.current) {
+                containerRef.current.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            }
+            setFullScreenMode(true);
+        } else {
+            document.exitFullscreen();
+            setFullScreenMode(false);
+        }
+    };
+
+    useEffect(() => {
+        const handleFullScreenChange = () => {
+            setFullScreenMode(!!document.fullscreenElement);
+        };
+
+        document.addEventListener("fullscreenchange", handleFullScreenChange);
+        return () => {
+            document.removeEventListener("fullscreenchange", handleFullScreenChange);
+        };
+    }, []);
+
     return (
         <>
             <div className="container">
-                <div className="videoContainer">
-                    <div className="videoContent">
-                        <div className="video">
-                            <Webcam
-                                ref={webcamRef}
-                                style={{
-                                    display: "none",
-                                    width: "100%",
-                                    height: "100%",
-                                    // transform: "scaleX(-1)"
-                                }}
-                            />
+                <div ref={containerRef} className="canvas-container">
+                    <Webcam
+                        ref={webcamRef}
+                        style={{
+                            display: "none",
+                            width: "100%",
+                            height: "100%",
+                            // transform: "scaleX(-1)"
+                        }}
+                    />
 
-                            <div className="loader"
-                                style={{
-                                    display: `${!load ? " " : "none"}`
-                                }}
-                            >
-                                <DisplayLottie animationData={loader} />
-                            </div>
-                            <canvas
-                                ref={canvasRef}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    // transform: "scaleX(-1)",
-                                }}
-                            ></canvas>
-                        </div>
+                    <div
+                        style={{
+                            display: `${!load ? " " : "none"}`
+                        }}
+                    >
+                        <DisplayLottie animationData={loader} />
                     </div>
+                    <canvas
+                        ref={canvasRef}
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                            // transform: "scaleX(-1)",
+                        }}
+                    ></canvas>
                 </div>
 
                 <div className="backgroundContainer">
                     <div className="backgrounds">
                         <img id="vbackground" src={imageURL} alt="The Screan" className="background" />
                     </div>
-                    <label htmlFor="contained-button-file" className="file-upload">
-                        <input accept="image/*,.jpg,.jpeg,.png,.pdf,.ppt,.pptx" id="contained-button-file" multiple type="file" onChange={imageHandler} />
+
+                    <label className="label-style">
                         {t('presentationPage.uploadFile')}
+                        <input type="file" accept="image/*,.jpg,.jpeg,.png,.pdf,.ppt,.pptx" className="file-input" onChange={imageHandler} />
                     </label>
 
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={subscribed ? unsubscribeFromWebhook : subscribeToWebhook}
-                    >
+                    <button className="button-style" onClick={subscribed ? unsubscribeFromWebhook : subscribeToWebhook}>
                         {subscribed ? t('presentationPage.stop') : t('presentationPage.gestureDetection')}
-                    </Button>
+                    </button>
 
-                    <h2>Recognized Gesture: {gesture}</h2>
-                    {error && <div className="error">{error}</div>} {/* error message */}
-                    <Button variant="contained" color="primary" onClick={() => setShowPerson((prev) => !prev)}>
+                    <button variant="contained" className="button-style" onClick={() => setShowPerson((prev) => !prev)}>
                         {showPerson ? t('presentationPage.hidePerson') : t('presentationPage.showPerson')}
-                    </Button>
+                    </button>
+
+                    <button className="button-style" onClick={toggleFullScreen}>
+                        {fullScreenMode ? t('presentationPage.exitFullScreen') : t('presentationPage.fullScreen')}
+                    </button>
+
+                    <p>{subscribed && `${t('presentationPage.recognizedGesture')} ${gesture}`}</p>
                 </div>
             </div>
         </>

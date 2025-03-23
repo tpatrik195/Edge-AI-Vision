@@ -380,6 +380,7 @@ import './i18n/i18n';
 import MenuBar from './components/Menubar';
 import HomePage from './pages/HomePage';
 import PresentationPage from './pages/PresentationPage';
+import PracticePage from './pages/PracticePage';
 import SettingsPage from './pages/SettingsPage';
 
 const App = () => {
@@ -388,6 +389,7 @@ const App = () => {
   const menuItems = [
     { label: t('menuBar.home'), path: '/' },
     { label: t('menuBar.presentation'), path: '/presentation' },
+    { label: t('menuBar.practice'), path: '/practice' },
     { label: t('menuBar.settings'), path: '/settings' }
   ];
 
@@ -402,6 +404,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/presentation" element={<PresentationPage />} />
+            <Route path="/practice" element={<PracticePage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </div>
