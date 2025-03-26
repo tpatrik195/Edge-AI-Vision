@@ -14,5 +14,19 @@
         "recognizedGesture": "Gestul recunoscut: ",
         "fullScreen": "Ecran complet",
         "exitFullScreen": "Ieșire"
+    },
+    "settingsPage": {
+        "title": "Setări Gesturi",
+        "option1": "Opțiunea 1",
+        "option2": "Opțiunea 2",
+        "option3": "Opțiunea 3",
+        "option4": "Opțiunea 4",
+        "option5": "Opțiunea 5",
+        "zoomIn": "Mărire",
+        "zoomOut": "Micșorare",
+        "swipeLeft": "Derulare spre stânga",
+        "swipeRight": "Derulare spre dreapta",
+        "chooseOption": "Alege opțiunea",
+        "exitFullScreen": "Ieșire ecran complet"
     }
 }

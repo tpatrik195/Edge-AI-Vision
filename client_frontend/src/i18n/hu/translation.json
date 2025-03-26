@@ -14,5 +14,19 @@
         "recognizedGesture": "Felismert gesztus: ",
         "fullScreen": "Teljes képernyő",
         "exitFullScreen": "Kilépés"
+    },
+    "settingsPage": {
+        "title": "Gesztusok Beállítása",
+        "option1": "1. opció",
+        "option2": "2. opció",
+        "option3": "3. opció",
+        "option4": "4. opció",
+        "option5": "5. opció",
+        "zoomIn": "Nagyítás",
+        "zoomOut": "Kicsinyítés",
+        "swipeLeft": "Lapozás balra",
+        "swipeRight": "Lapozás jobbra",
+        "chooseOption": "Opció kiválasztása",
+        "exitFullScreen": "Teljes képernyő bezárása"
     }
 }

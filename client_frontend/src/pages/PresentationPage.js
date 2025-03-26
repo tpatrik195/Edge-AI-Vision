@@ -35,12 +35,39 @@ const PresentationPage = () => {
     const [showPerson, setShowPerson] = useState(true);
     const [subscribed, setSubscribed] = useState(false);
     const [fullScreenMode, setFullScreenMode] = useState(false);
+    const [personScale, setPersonScale] = useState(1);
     let frameInterval = useRef(null);
 
     const { t } = useTranslation();
 
+    // const onResults = async (results) => {
+    //     const img = document.getElementById('vbackground')
+    //     const videoWidth = webcamRef.current.video.videoWidth;
+    //     const videoHeight = webcamRef.current.video.videoHeight;
+
+    //     canvasRef.current.width = videoWidth;
+    //     canvasRef.current.height = videoHeight;
+
+    //     const canvasElement = canvasRef.current;
+    //     const canvasCtx = canvasElement.getContext("2d");
+
+    //     canvasCtx.save();
+    //     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+    //     // if (showPerson) {
+    //     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+    //     canvasCtx.globalCompositeOperation = 'destination-atop';
+    //     canvasCtx.drawImage(results.segmentationMask, 0, 0, canvasElement.width, canvasElement.height);
+    //     // }
+
+    //     canvasCtx.globalCompositeOperation = 'destination-over';
+    //     canvasCtx.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
+    //     canvasCtx.restore();
+    //     setLoad(true);
+    // }
+
     const onResults = async (results) => {
-        const img = document.getElementById('vbackground')
+        const img = document.getElementById('vbackground');
         const videoWidth = webcamRef.current.video.videoWidth;
         const videoHeight = webcamRef.current.video.videoHeight;
 
@@ -53,12 +80,30 @@ const PresentationPage = () => {
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
+        // A személy skálázása
+        const scaleWidth = videoWidth * personScale;
+        const scaleHeight = videoHeight * personScale;
+
+        // Ha a showPerson true, akkor rajzoljuk ki a személyt és a háttér maszkot
         // if (showPerson) {
-        canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-        canvasCtx.globalCompositeOperation = 'destination-atop';
-        canvasCtx.drawImage(results.segmentationMask, 0, 0, canvasElement.width, canvasElement.height);
+            console.log(personScale);
+            
+            canvasCtx.drawImage(
+                results.image,
+                0, 0, videoWidth, videoHeight, // Eredeti kép
+                (videoWidth - scaleWidth) / 2, (videoHeight - scaleHeight) / 2, // A személy középre helyezése
+                scaleWidth, scaleHeight // Skálázott személy méret
+            );
+            canvasCtx.globalCompositeOperation = 'destination-atop';
+            canvasCtx.drawImage(
+                results.segmentationMask,
+                0, 0, videoWidth, videoHeight, // Eredeti maszk
+                (videoWidth - scaleWidth) / 2, (videoHeight - scaleHeight) / 2, // Maszk középre helyezése
+                scaleWidth, scaleHeight // Skálázott maszk méret
+            );
         // }
 
+        // A háttérre rajzolás
         canvasCtx.globalCompositeOperation = 'destination-over';
         canvasCtx.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
         canvasCtx.restore();
@@ -312,6 +357,11 @@ const PresentationPage = () => {
             ) {
                 setPptSlideNum((prev) => prev - 1);
             }
+        }
+        else if (gesture === "+") {
+            setPersonScale(prevScale => Math.min(prevScale + 0.1, 2));
+        } else if (gesture === "-") {
+            setPersonScale(prevScale => Math.max(prevScale - 0.1, 0.5));
         }
     }, [gesture]);
 

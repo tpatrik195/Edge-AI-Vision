@@ -14,5 +14,19 @@
         "recognizedGesture": "Recognized gesture: ",
         "fullScreen": "Full screen",
         "exitFullScreen": "Exit"
+    },
+    "settingsPage": {
+        "title": "Gesture Settings",
+        "option1": "Option 1",
+        "option2": "Option 2",
+        "option3": "Option 3",
+        "option4": "Option 4",
+        "option5": "Option 5",
+        "zoomIn": "Zoom In",
+        "zoomOut": "Zoom Out",
+        "swipeLeft": "Swipe Left",
+        "swipeRight": "Swipe Right",
+        "chooseOption": "Choose option",
+        "exitFullScreen": "Exit full screen"
     }
 }
