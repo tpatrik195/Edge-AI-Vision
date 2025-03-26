@@ -35,26 +35,26 @@ class HandGestureDetector:
 
     def detect_movement(self, hand_landmarks):
         if not hand_landmarks:
-            return "none"
+            return "None"
 
         media_x = round(sum([lm.x for lm in hand_landmarks[0].landmark]) / len(hand_landmarks[0].landmark), 2)
 
         if self.last_position is not None:
             if media_x < self.last_position - 0.05:
-                movement = "swipe left"
+                movement = "Swipe Left"
             elif media_x > self.last_position + 0.05:
-                movement = "swipe right"
+                movement = "Swipe Right"
             else:
-                movement = "none"
+                movement = "None"
         else:
-            movement = "none"
+            movement = "None"
 
         self.last_position = media_x
         return movement
     
     def detect_gesture(self, hand_landmarks, handedness_list):
         if not hand_landmarks or not handedness_list:
-            return "none"
+            return "None"
         
         movement = self.detect_movement(hand_landmarks)
 
@@ -103,19 +103,19 @@ class HandGestureDetector:
 
             if hand_label == "Right":
                 if thumb_index_angle < 4 and index_middle_angle < 4 and middle_ring_angle < 5 and ring_pinky_angle < 4:
-                    gesture = "-"
+                    gesture = "Zoom Out"
                 elif thumb_index_angle > 30 and index_middle_angle > 5 and middle_ring_angle > 5 and ring_pinky_angle > 10:
-                    gesture = "+"
+                    gesture = "Zoom In"
                 elif wrist_index_angle > 160 and wrist_middle_angle < 25 and wrist_ring_angle < 20 and wrist_pinky_angle < 20:
-                    gesture = "pointing"
+                    gesture = "Pointing"
                 else:
-                    gesture = "normal"
+                    gesture = "Normal"
 
             elif hand_label == "Left":
-                if movement != "none":
+                if movement != "None":
                     return movement
 
-                gesture = "normal"
+                gesture = "Normal"
 
             self.gesture_history.append(gesture)
             if len(self.gesture_history) > 10:
@@ -124,4 +124,4 @@ class HandGestureDetector:
             if self.gesture_history.count(gesture) >= 3:
                 return gesture
 
-        return "none"
+        return "None"
