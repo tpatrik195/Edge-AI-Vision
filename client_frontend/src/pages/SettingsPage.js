@@ -1,7 +1,7 @@
 import { Box, Divider, Typography, Paper, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
-import { getGestures, getOptions } from "../utils/gestureOptions";
+import { getGestures, getOptions, defaultSettings } from "../utils/gestureOptions";
 
 const SettingsPage = () => {
     const { t } = useTranslation();
@@ -15,6 +15,9 @@ const SettingsPage = () => {
         const storedSettings = sessionStorage.getItem("gestureSettings");
         if (storedSettings) {
             setSettings(JSON.parse(storedSettings));
+        } else {
+            setSettings(defaultSettings);
+            sessionStorage.setItem("gestureSettings", JSON.stringify(defaultSettings));
         }
     }, []);
 

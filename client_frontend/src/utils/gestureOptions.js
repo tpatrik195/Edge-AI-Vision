@@ -20,3 +20,10 @@ export const getOptions = (t) => [
     t('settingsPage.swipeLeft'),
     t('settingsPage.swipeRight')
 ];
+
+export const defaultSettings = {
+    "Zoom In": "Zoom In",
+    "Zoom Out": "Zoom Out",
+    "Swipe Left": "Swipe Left",
+    "Swipe Right": "Swipe Right"
+};
