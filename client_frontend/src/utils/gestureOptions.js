@@ -1,13 +1,13 @@
 export const getGestures = (t) => [
-    t('settingsPage.option1'),
-    t('settingsPage.option2'),
-    t('settingsPage.option3'),
-    t('settingsPage.option4'),
-    t('settingsPage.option5'),
-    t('settingsPage.zoomIn'),
-    t('settingsPage.zoomOut'),
-    t('settingsPage.swipeLeft'),
-    t('settingsPage.swipeRight'),
+    { id: 1, name: t('settingsPage.option1'), image: '' },
+    { id: 2, name: t('settingsPage.option2'), image: '' },
+    { id: 3, name: t('settingsPage.option3'), image: '' },
+    { id: 4, name: t('settingsPage.option4'), image: '' },
+    { id: 5, name: t('settingsPage.option5'), image: '' },
+    { id: 6, name: t('settingsPage.zoomIn'), image: '' },
+    { id: 7, name: t('settingsPage.zoomOut'), image: '' },
+    { id: 8, name: t('settingsPage.swipeLeft'), image: '' },
+    { id: 9, name: t('settingsPage.swipeRight'), image: '' },
 ];
 
 export const getOptions = (t) => [

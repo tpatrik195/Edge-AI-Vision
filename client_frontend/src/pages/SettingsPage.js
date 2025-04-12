@@ -22,7 +22,7 @@ const SettingsPage = () => {
     }, []);
 
     const handleChange = (gesture, action) => {
-        const newSettings = { ...settings, [gesture]: action };
+        const newSettings = { ...settings, [gesture.name]: action };
         setSettings(newSettings);
         sessionStorage.setItem("gestureSettings", JSON.stringify(newSettings));
     };
@@ -52,16 +52,16 @@ const SettingsPage = () => {
                 </Typography>
                 <Divider sx={{ marginBottom: 2 }} />
                 {Gestures.map((gesture) => (
-                    <Box key={gesture} sx={{ marginBottom: 2 }}>
+                    <Box key={gesture.name} sx={{ marginBottom: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Typography fontWeight="bold" sx={{ flex: 1 }}>
-                                {gesture}
+                                {gesture.name}
                             </Typography>
                             <FormControl size="small" sx={{ width: '40%' }}>
-                                <InputLabel id={`${gesture}-label`}>{t('settingsPage.chooseOption')}</InputLabel>
+                                <InputLabel id={`${gesture.name}-label`}>{t('settingsPage.chooseOption')}</InputLabel>
                                 <Select
-                                    labelId={`${gesture}-label`}
-                                    value={settings[gesture] || ""}
+                                    labelId={`${gesture.name}-label`}
+                                    value={settings[gesture.name] || ""}
                                     onChange={(e) => handleChange(gesture, e.target.value)}
                                     label={t('settingsPage.chooseOption')}
                                     sx={{
@@ -73,7 +73,7 @@ const SettingsPage = () => {
                                 >
                                     <MenuItem value="">{t('settingsPage.chooseOption')}</MenuItem>
                                     {Options
-                                        .filter((option) => !selectedOptions.includes(option) || settings[gesture] === option)
+                                        .filter((option) => !selectedOptions.includes(option) || settings[gesture.name] === option)
                                         .map((option) => (
                                             <MenuItem key={option} value={option}>
                                                 {option}

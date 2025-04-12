@@ -28,5 +28,8 @@
         "swipeRight": "Lapozás jobbra",
         "chooseOption": "Opció kiválasztása",
         "exitFullScreen": "Teljes képernyő bezárása"
+    },
+    "practiceCard": {
+        "tryGesture": "Gesztus kipróbálása"
     }
 }

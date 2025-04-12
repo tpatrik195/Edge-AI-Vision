@@ -28,5 +28,8 @@
         "swipeRight": "Swipe Right",
         "chooseOption": "Choose option",
         "exitFullScreen": "Exit full screen"
+    },
+    "practiceCard": {
+        "tryGesture": "Try this gesture"
     }
 }

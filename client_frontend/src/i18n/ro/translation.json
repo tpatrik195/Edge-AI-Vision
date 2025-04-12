@@ -28,5 +28,8 @@
         "swipeRight": "Derulare spre dreapta",
         "chooseOption": "Alege opțiunea",
         "exitFullScreen": "Ieșire ecran complet"
+    },
+    "practiceCard": {
+        "tryGesture": "Încearcă acest gest"
     }
 }
