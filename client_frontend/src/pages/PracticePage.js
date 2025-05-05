@@ -8,7 +8,7 @@ const PracticePage = () => {
     const { t } = useTranslation();
     const gestures = getGestures(t);
     return (
-        <Box style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+        <Box style={{ display: 'flex', flexWrap: 'wrap' }}>
             {gestures.map((gesture, index) => (
                 <PracticeCard key={index} id={gesture.id} name={gesture.name} image={gesture.image} t={t} />
             ))}

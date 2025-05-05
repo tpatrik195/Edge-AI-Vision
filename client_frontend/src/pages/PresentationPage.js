@@ -37,6 +37,7 @@ const PresentationPage = () => {
     const [fullScreenMode, setFullScreenMode] = useState(false);
     const [personScale, setPersonScale] = useState(1);
     let frameInterval = useRef(null);
+    const [markerPosition, setMarkerPosition] = useState(null);
 
     const { t } = useTranslation();
 
@@ -63,6 +64,15 @@ const PresentationPage = () => {
         canvasCtx.globalCompositeOperation = 'destination-over';
         canvasCtx.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
         canvasCtx.restore();
+
+        // if (markerPosition) {
+        //     canvasCtx.beginPath();
+        //     canvasCtx.arc(markerPosition.x, markerPosition.y, 100, 0, 2 * Math.PI);
+        //     canvasCtx.fillStyle = "red";
+        //     canvasCtx.fill();
+        //     canvasCtx.closePath();
+        // }
+
         setLoad(true);
     }
 
@@ -286,6 +296,8 @@ const PresentationPage = () => {
         }
     };
 
+    let frameCounter = 0;
+
     const startFrameStreaming = () => {
         frameInterval.current = setInterval(async () => {
             if (webcamRef.current) {
@@ -301,15 +313,17 @@ const PresentationPage = () => {
                     if (blob) {
                         const formData = new FormData();
                         formData.append("frame", blob, "frame.jpg");
+                        const frameId = ++frameCounter;
+                        const startTime = performance.now();
+                        // console.log(`Start Time [${frameId}]:`, startTime);
+                        
 
                         try {
-                            const response = await fetch(`${SERVER_URL}/process_frame`, {
+                            const response = await fetch(`${SERVER_URL}/process_frame?frameId=${frameId}`, {
                                 method: "POST",
                                 body: formData,
                             });
 
-                            const result = await response.json();
-                            console.log("Server Response:", result);
                         } catch (error) {
                             console.error("Error sending frame", error);
                         }
@@ -326,15 +340,39 @@ const PresentationPage = () => {
     };
 
     useEffect(() => {
-        socket.on("gesture_event", (data) => {
+        socket.on("gesture_event", async (data) => {
             console.log("Gesture received:", data);
             setGesture(data.gesture);
+            const endTime = performance.now();   // end
+            // console.log(`End Time [${frameCounter}]:`, endTime);
+            // console.log("------------------------------------");
+
+            if (data.gesture.includes(",")) {
+                const [x, y] = data.gesture.split(',').map(Number);
+                setMarkerPosition({ x, y });
+            }
         });
 
         return () => {
             socket.off("gesture_event");
         };
     }, []);
+
+    console.log(markerPosition);
+
+    // useEffect(() => {
+    //     if (markerPosition) {
+    //         const canvasElement = canvasRef.current;
+    //         const ctx = canvasElement.getContext("2d");
+    
+    //         ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    
+    //         ctx.beginPath();
+    //         ctx.arc(markerPosition.x, markerPosition.y, 10, 0, Math.PI * 2);
+    //         ctx.fillStyle = "red";
+    //         ctx.fill();
+    //     }
+    // }, [markerPosition]);
 
     useEffect(() => {
         const storedSettings = JSON.parse(sessionStorage.getItem("gestureSettings")) || {};
@@ -366,6 +404,8 @@ const PresentationPage = () => {
                 setPersonScale((prevScale) => Math.min(prevScale + 0.1, 2));
             } else if (mappedGesture === "Zoom Out") {
                 setPersonScale((prevScale) => Math.max(prevScale - 0.1, 0.5));
+            } else if (mappedGesture === "Full screen" || mappedGesture === "Exit full screen") {
+                toggleFullScreen();
             }
         }
     }, [gesture, fileType, pdfPageNum, pptSlideNum, totalPdfPages, pptSlides.length]);

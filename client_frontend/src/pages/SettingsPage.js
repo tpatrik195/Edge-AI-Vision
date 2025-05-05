@@ -1,4 +1,4 @@
-import { Box, Divider, Typography, Paper, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { Box, Divider, Typography, Paper, Select, MenuItem, FormControl, InputLabel, Switch, FormControlLabel } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { getGestures, getOptions, defaultSettings } from "../utils/gestureOptions";
@@ -6,7 +6,7 @@ import { getGestures, getOptions, defaultSettings } from "../utils/gestureOption
 const SettingsPage = () => {
     const { t } = useTranslation();
 
-    const Gestures = getGestures(t);
+    const Gestures = getGestures(t).slice(0, 9);
     const Options = getOptions(t);
 
     const [settings, setSettings] = useState({});
@@ -29,13 +29,19 @@ const SettingsPage = () => {
 
     const selectedOptions = Object.values(settings);
 
+    const handleDebugToggle = (event) => {
+        const newSettings = { ...settings, debugMode: event.target.checked };
+        setSettings(newSettings);
+        sessionStorage.setItem("gestureSettings", JSON.stringify(newSettings));
+    };
+
     return (
         <Box
             sx={{
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                height: '80vh'
+                height: '85vh'
             }}
         >
             <Paper
@@ -50,6 +56,10 @@ const SettingsPage = () => {
                 <Typography variant="h5" fontWeight="bold" textAlign="center" marginBottom={2}>
                     {t('settingsPage.title')}
                 </Typography>
+                {/* <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography>{t('settingsPage.gesture')}</Typography>
+                    <Typography>{t('settingsPage.function')}</Typography>
+                </div> */}
                 <Divider sx={{ marginBottom: 2 }} />
                 {Gestures.map((gesture) => (
                     <Box key={gesture.name} sx={{ marginBottom: 2 }}>
@@ -79,12 +89,26 @@ const SettingsPage = () => {
                                                 {option}
                                             </MenuItem>
                                         ))}
+
                                 </Select>
                             </FormControl>
                         </Box>
                         <Divider sx={{ marginTop: 1 }} />
                     </Box>
                 ))}
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography fontWeight="bold">{t("settingsPage.debugMode")}</Typography>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={!!settings.debugMode}
+                                onChange={handleDebugToggle}
+                                color="primary"
+                            />
+                        }
+                    />
+                </Box>
             </Paper>
         </Box>
     );

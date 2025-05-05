@@ -30,7 +30,7 @@ const MenuBar = ({ menuItems }) => {
         <AppBar position="static" sx={{ backgroundColor: '#333', boxShadow: 'none' }}>
             <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
-                    Edge AI Vision
+                    Gesture Vision AI
                 </Typography>
 
                 <Box sx={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
