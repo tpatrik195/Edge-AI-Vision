@@ -12,6 +12,7 @@ import html2canvas from "html2canvas";
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { io } from "socket.io-client";
 import { useTranslation } from 'react-i18next';
+import CursorFollower from "../components/CursorFollower";
 
 const SERVER_URL = "http://127.0.0.1:8000";
 const WEBHOOK_URL = "http://127.0.0.1:9000/webhook";
@@ -437,6 +438,7 @@ const PresentationPage = () => {
 
     return (
         <>
+            <CursorFollower markerPosition={markerPosition} />
             <div className="container">
                 <div ref={containerRef} className="canvas-container">
                     <Webcam

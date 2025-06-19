@@ -142,7 +142,7 @@ const GestureDetailPage = () => {
             }}
         >
             {currentGestureData && (
-                <p style={{ marginTop: "10px", fontSize: "16px", fontWeight: "bold" }}>
+                <p style={{ marginRight: "3px", marginLeft: "3px", marginTop: "10px", fontSize: "16px", fontWeight: "bold", textAlign: "center", }}>
                     {currentGestureData.description}
                 </p>
             )}

@@ -10,7 +10,7 @@ def process_hand_gesture(frame):
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     hand_results = hand_gesture_detector.detect_hands(frame_rgb)
     if hand_results.multi_hand_landmarks:
-        gesture = hand_gesture_detector.detect_gesture(hand_results.multi_hand_landmarks, hand_results.multi_handedness)
+        gesture = hand_gesture_detector.detect_gesture(hand_results.multi_hand_landmarks, hand_results.multi_handedness, frame=frame)
     else:
         gesture = "no hand detected"
     return gesture, frame

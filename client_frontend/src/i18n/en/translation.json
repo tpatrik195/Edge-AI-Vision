@@ -38,12 +38,12 @@
     },
     "practicePage": {
         "option1Description": "Extend your thumb on your right hand and keep the other fingers closed.",
-        "option2Description": "Extend your thumb and index finger on your right hand, keep the others closed.",
+        "option2Description": "Right hand to the leftward, with two fingers extended, and left hand with palm facing upward.",
         "option3Description": "Extend your index, middle, and ring fingers on your right hand, keep the others closed.",
         "option4Description": "Extend all fingers on your right hand except the thumb.",
         "option5Description": "Extend all five fingers on your right hand, keeping them close together.",
         "zoomInDescription": "Make a zoom-in gesture using all five fingers on your right hand. The fingertips should be far apart.",
-        "zoomOutDescription": "Pinch all five fingers together on your right hand. The fingertips should be very close.",
+        "zoomOutDescription": "On your right hand, pinch all five fingers together so the fingertips are very close. Your hand should be facing upward. Your left hand should be open, also facing upward.",
         "swipeLeftDescription": "Make a swipe left gesture with your left hand, as if waving to the left.",
         "swipeRightDescription": "Make a swipe right gesture with your left hand, as if waving to the right.",
         "laserPointerDescription": "Use your right hand's index finger to point at something on the screen."
