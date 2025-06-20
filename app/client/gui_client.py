@@ -162,7 +162,7 @@ def start_webcam():
     
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
-        messagebox.showerror("Error", "Cannot open webcam!")
+        # messagebox.showerror("Error", "Cannot open webcam!")
         return
     
     camera_active = True
